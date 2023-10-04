@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('leverage');
             $table->string("mode");
             $table->date("purchased_at")->nullable();
+            $table->date("failed_at")->nullable();
+
 
             // tie to user
             $table->foreignId("user_id")->nullable()->constrained("users");
