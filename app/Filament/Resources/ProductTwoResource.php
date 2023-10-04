@@ -19,6 +19,8 @@ class ProductTwoResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
 
+
+
     public static function form(Form $form): Form
     {
         return $form
@@ -67,14 +69,14 @@ class ProductTwoResource extends Resource
                 Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -83,5 +85,5 @@ class ProductTwoResource extends Resource
             'view' => Pages\ViewProductTwo::route('/{record}'),
             'edit' => Pages\EditProductTwo::route('/{record}/edit'),
         ];
-    }    
+    }
 }

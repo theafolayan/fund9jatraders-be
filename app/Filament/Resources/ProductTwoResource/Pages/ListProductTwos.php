@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ProductTwoResource\Pages;
 
 use App\Filament\Resources\ProductTwoResource;
+use App\Filament\Resources\ProductTwoResource\Widgets\ProductTwoOverView;
 use Filament\Pages\Actions;
 use Filament\Resources\Pages\ListRecords;
 
@@ -14,6 +15,12 @@ class ListProductTwos extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
+        ];
+    }
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            ProductTwoOverView::class,
         ];
     }
 }
