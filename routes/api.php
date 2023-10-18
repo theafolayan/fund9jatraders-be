@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -26,15 +27,15 @@ Route::prefix('auth')->group(function () {
 });
 
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum')->prefix('user')->group(function () {
     Route::get('/', [UserController::class, 'user']);
     Route::post('logout', [UserController::class, 'logout']);
 
-    Route::put('change-password', [UserController::class, 'changePassword']);
-    Route::put('bank', [UserController::class, 'updateBankDetails']);
-    Route::put('update-address', [UserController::class, 'updateAddress']);
-    Route::get('platform-settings', [UserController::class, 'getPlatformSettings']);
-})->prefix('user');
+    Route::put('/change-password', [UserController::class, 'changePassword']);
+    Route::put('/bank', [UserController::class, 'updateBankDetails']);
+    Route::put('/update-address', [UserController::class, 'updateAddress']);
+    Route::get('/platform-settings', [UserController::class, 'getPlatformSettings']);
+});
 
 // Route::get
 

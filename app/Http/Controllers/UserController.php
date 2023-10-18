@@ -122,13 +122,20 @@ class UserController extends Controller
     }
 
 
+    public function user()
+    {
+        $user = auth()->user();
+
+        return $user;
+    }
+
     public function updateBankDetails(Request $request)
     {
 
         $request->validate([
             'bank_name' => 'required|string|min:5',
             'account_name' => 'required|string|min:10|max:50',
-            'account_number' => 'required|string|min:10|max:10',
+            'account_number' => 'required|min:10|max:10',
         ]);
         $user = auth()->user();
 
