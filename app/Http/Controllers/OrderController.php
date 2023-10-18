@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Order;
+use App\Models\ProductOne;
+use App\Models\ProductThree;
+use App\Models\ProductTwo;
 use App\Settings\PlatformSettings;
 
 class OrderController extends Controller
@@ -23,11 +26,16 @@ class OrderController extends Controller
      */
     public function store(StoreOrderRequest $request, $type, PlatformSettings $settings)
     {
+
+        return response()->json([
+            'type' => $type,
+        ]);
         // create an order
+
 
         $order =  Order::create([
             'user_id' => auth()->user()->id,
-            'product_type' => $type == 1 ? 'ONE' : ($type == 2 ? 'TWO' : 'THREE'),
+            'product_type' => $type == "one" ? 'ONE' : ($type == 'two' ? 'TWO' : 'THREE'),
             'phase' => 1,
             'cost' => $type ==  1 ? $settings->product_one_price : ($type == 2 ? $settings->product_two_price : $settings->product_three_price),
         ]);
@@ -35,12 +43,77 @@ class OrderController extends Controller
 
         // assign a product to the order
 
-        if ($type == 1) {
-            $order->products()->create([
-                'user_id' => auth()->user()->id,
-                'status' => 'active',
-                // 'cost' => 100,
-            ]);
+        if ($type == 'one') {
+
+            // check for available product one
+            $product = ProductOne::where('order_id', null)->first();
+
+            if (!$product) {
+                return response()->json([
+                    'message' => 'No available product',
+                ], 400);
+            }
+
+            $product->order_id = $order->id;
+            $product->user_id = auth()->user()->id;
+            $product->save();
+
+            $order->product_id = $product->id;
+            $order->save();
+
+
+            return response()->json([
+                'message' => 'Product assigned successfully',
+                'product' => $product,
+            ], 201);
+        }
+
+        if ($type == 'two') {
+
+            // check for available product one
+            $product = ProductTwo::where('order_id', null)->first();
+
+            if (!$product) {
+                return response()->json([
+                    'message' => 'No available product',
+                ], 400);
+            }
+
+            $product->order_id = $order->id;
+            $product->user_id = auth()->user()->id;
+            $product->save();
+
+            $order->product_id = $product->id;
+            $order->save();
+
+            return response()->json([
+                'message' => 'Product assigned successfully',
+                'product' => $product,
+            ], 201);
+        }
+
+        if ($type == 'three') {
+
+            // check for available product one
+            $product = ProductThree::where('order_id', null)->first();
+
+            if (!$product) {
+                return response()->json([
+                    'message' => 'No available product',
+                ], 400);
+            }
+
+            $product->order_id = $order->id;
+            $product->user_id = auth()->user()->id;
+            $product->save();
+
+            $order->product_id = $product->id;
+            $order->save();
+
+            return response()->json([
+                'message' => 'Product assigned successfully',
+                'product' => $product,
+            ], 201);
         }
 
 

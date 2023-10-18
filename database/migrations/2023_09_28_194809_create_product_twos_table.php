@@ -22,6 +22,8 @@ return new class extends Migration
             //failed at
             $table->date("breached_at")->nullable();
             $table->date("passed_at")->nullable();
+            $table->unsignedBigInteger("order_id");
+
 
             // tie to user
             $table->foreignId("user_id")->nullable()->constrained("users");
