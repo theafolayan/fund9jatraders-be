@@ -24,3 +24,24 @@ Route::prefix('auth')->group(function () {
     Route::post('register', [UserController::class, 'register']);
     Route::post('login', [UserController::class, 'login']);
 });
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/', [UserController::class, 'user']);
+    Route::post('logout', [UserController::class, 'logout']);
+
+    Route::put('change-password', [UserController::class, 'changePassword']);
+    Route::put('bank', [UserController::class, 'updateBankDetails']);
+    Route::put('update-address', [UserController::class, 'updateAddress']);
+    Route::get('platform-settings', [UserController::class, 'getPlatformSettings']);
+})->prefix('user');
+
+// Route::get
+
+// order controller
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('orders', [OrderController::class, 'index']);
+    Route::post('create-order/{type}', [OrderController::class, 'store']);
+    Route::get('orders/{order}', [OrderController::class, 'show']);
+});

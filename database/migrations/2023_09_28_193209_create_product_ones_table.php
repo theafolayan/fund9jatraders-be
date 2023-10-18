@@ -20,10 +20,12 @@ return new class extends Migration
             $table->string("mode");
             $table->date("purchased_at")->nullable();
             //failed at
-            $table->date("failed_at")->nullable();
+            $table->date("breached_at")->nullable();
+            $table->date("passed_at")->nullable();
+
             // tie to user
             $table->foreignId("user_id")->nullable()->constrained("users");
-            $table->string("status")->default("inactive"); // active, inactive, failed,
+            $table->string("status")->default("inactive"); // active, inactive, breached, passed
             $table->timestamps();
         });
     }
