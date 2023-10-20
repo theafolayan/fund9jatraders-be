@@ -134,7 +134,7 @@ class UserController extends Controller
 
         $request->validate([
             'bank_name' => 'required|string|min:5',
-            'account_name' => 'required|string|min:10|max:50',
+            'account_name' => 'required|string|min:5|max:50',
             'account_number' => 'required|min:10|max:10',
         ]);
         $user = auth()->user();

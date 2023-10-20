@@ -17,8 +17,13 @@ class OrderController extends Controller
      */
     public function index()
     {
-    }
+        $user = auth()->user();
+        $orders = $user->orders()->get();
 
+        return response()->json([
+            'orders' => $orders,
+        ]);
+    }
 
 
     /**
@@ -27,9 +32,9 @@ class OrderController extends Controller
     public function store(StoreOrderRequest $request, $type, PlatformSettings $settings)
     {
 
-        return response()->json([
-            'type' => $type,
-        ]);
+        // return response()->json([
+        //     'type' => $type,
+        // ]);
         // create an order
 
 
@@ -44,7 +49,6 @@ class OrderController extends Controller
         // assign a product to the order
 
         if ($type == 'one') {
-
             // check for available product one
             $product = ProductOne::where('order_id', null)->first();
 

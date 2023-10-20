@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string("product_type");
-            $table->unsignedBigInteger("product_id");
+            $table->unsignedBigInteger("product_id")->nullable();
             $table->integer("cost");
             $table->integer("phase");
             $table->date("breached_at")->nullable();
+            $table->foreignId("user_id")->references("id")->on("users")->onDelete("cascade");
             $table->timestamps();
         });
     }

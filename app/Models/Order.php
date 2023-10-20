@@ -15,6 +15,34 @@ class Order extends Model
         return !$this->isBreached();
     }
 
+    public function getAllProductsAttribute()
+    {
+        if ($this->product_type == "ONE") {
+            return ProductOne::where('order_id', $this->id)->get();
+        }
+        if ($this->product_type == "TWO") {
+            return ProductTwo::where('order_id', $this->id)->get();
+        }
+        if ($this->product_type == "THREE") {
+            return ProductThree::where('order_id', $this->id)->get();
+        }
+    }
+
+    public function getLastAssignedAttribute()
+    {
+        if ($this->product_type == "ONE") {
+            return ProductOne::where('order_id', $this->id)->latest()->first();
+        }
+        if ($this->product_type == "TWO") {
+            return ProductTwo::where('order_id', $this->id)->latest()->first();
+        }
+        if ($this->product_type == "THREE") {
+            return ProductThree::where('order_id', $this->id)->latest()->first();
+        }
+    }
+
+    public $appends = ['all_products', 'last_assigned'];
+
     public function products()
     {
         if ($this->product_type == "ONE") {
@@ -32,13 +60,13 @@ class Order extends Model
     {
 
         if ($this->product_type == "ONE") {
-            return $this->hasOne(ProductOne::class);
+            return $this->hasMany(ProductOne::class);
         }
         if ($this->product_type == "TWO") {
-            return $this->hasOne(ProductTwo::class);
+            return $this->hasMany(ProductTwo::class);
         }
         if ($this->product_type == "THREE") {
-            return $this->hasOne(ProductThree::class);
+            return $this->hasMany(ProductThree::class);
         }
     }
 
