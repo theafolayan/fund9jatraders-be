@@ -10,6 +10,8 @@ use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -28,7 +30,7 @@ class ProductOneResource extends Resource
                 Forms\Components\TextInput::make('account_number')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('traders_password')
-                    ->password()
+
                     ->maxLength(255),
                 Forms\Components\TextInput::make('server')
                     ->required()
@@ -41,7 +43,6 @@ class ProductOneResource extends Resource
                     ->options([
                         'demo' => 'Demo',
                         'real' => 'Real',
-                        'fresh' => 'Fresh',
                     ]),
             ]);
     }
@@ -50,10 +51,18 @@ class ProductOneResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('account_number'),
-                Tables\Columns\TextColumn::make('server'),
-                Tables\Columns\TextColumn::make('leverage'),
+                Tables\Columns\TextColumn::make('account_number')->searchable(),
+                Tables\Columns\TextColumn::make('traders_password')->searchable(),
+                Tables\Columns\TextColumn::make('server')->searchable(),
+                Tables\Columns\TextColumn::make('leverage')->sortable(),
                 Tables\Columns\TextColumn::make('mode'),
+                // status
+                Tables\Columns\TextColumn::make('status')->color(fn (ProductOne $record) => match ($record->status) {
+                    'active' => 'success',
+                    'inactive' => 'warning',
+                    'breached' => 'danger',
+                    'passed' => 'success',
+                }),
                 Tables\Columns\TextColumn::make('purchased_at')
                     ->date(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -62,7 +71,20 @@ class ProductOneResource extends Resource
                     ->dateTime(),
             ])
             ->filters([
-                //
+                SelectFilter::make('mode')
+                    ->options([
+                        'demo' => 'Demo',
+                        'real' => 'Real',
+                        // 'fresh' => 'Fresh',
+                    ])->multiple(),
+
+                SelectFilter::make('status')->options([
+                    'active' => 'Active',
+                    'inactive' => 'Inactive',
+                    'breached' => 'Breached',
+                    'passed' => 'Passed',
+                ]),
+                // Filter::make('hide_breached')->label("Show breached products")->query(fn (Builder $query): Builder => $query->whereNull('breached_at')),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -88,5 +110,10 @@ class ProductOneResource extends Resource
             'view' => Pages\ViewProductOne::route('/{record}'),
             'edit' => Pages\EditProductOne::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->latest();
     }
 }

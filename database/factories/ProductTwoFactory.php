@@ -21,7 +21,8 @@ class ProductTwoFactory extends Factory
             'traders_password' => $this->faker->word(),
             'server' => 'Exness-trial-10',
             'leverage' => '1:1000',
-            'mode' => $this->faker->randomElement(['demo', 'real', 'fresh']),
+            'status' => $this->faker->randomElement(['active', 'inactive', 'breached', 'passed']),
+            'mode' => $this->faker->randomElement(['demo', 'real']),
             'purchased_at' => $this->faker->randomElement([$this->faker->dateTimeBetween('-1 years', 'now'), null]),
         ];
     }

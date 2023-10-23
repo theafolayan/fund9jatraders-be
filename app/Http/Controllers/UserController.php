@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\VerifyOTP;
 use App\Models\User;
+use App\Notifications\WelcomeUserNotification;
 use App\Settings\PlatformSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Mail;
+use Tzsk\Otp\Facades\Otp;
 
 class UserController extends Controller
 {
@@ -19,11 +22,9 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email',
-            'phone_number' => 'required|string',
             'address_city' => 'required|string',
             'address_state' => 'required|string',
             'password' => 'required|string|min:8',
-
         ]);
 
         $referral_id = $request->referral_id;
@@ -32,23 +33,49 @@ class UserController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'phone_number' => $request->phone_number,
             'address_city' => $request->address_city,
             'address_state' => $request->address_state,
             'password' => $request->password,
             'referrer_id' => $referral_id,
         ]);
 
+        $user->notify(new WelcomeUserNotification());
 
         //create sanctum token
         $token = $user->createToken('auth_token')->plainTextToken;
-
 
         return response()->json([
             'message' => 'User created successfully',
             'user' => $user,
             'token' => $token
         ], 201);
+    }
+
+    public function getEmailOtp(Request $request)
+    {
+
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string|min:8'
+        ]);
+
+        $otp = Otp::digits(4)->generate($request->email);
+
+
+        // Send email to user
+
+        Mail::to($request->email)->send(new VerifyOTP($otp));
+        //   });
+
+        return response()->json([
+            'message' => 'OTP successfully sent to email',
+            // 'otp' => $otp
+        ], 200);
+    }
+
+    public function checkOtp($email, $otp)
+    {
+        return Otp::digits(4)->check($email, $otp);
     }
 
 
@@ -116,7 +143,6 @@ class UserController extends Controller
                 'lock_purchases' => $platformSettings->lock_purchases,
                 'lock_withdrawals' => $platformSettings->lock_withdrawals,
                 'lock_referrals' => $platformSettings->lock_referrals,
-
             ]
         ], 200);
     }
@@ -133,7 +159,7 @@ class UserController extends Controller
     {
 
         $request->validate([
-            'bank_name' => 'required|string|min:5',
+            'bank_name' => 'required|string|min:3|max:50',
             'account_name' => 'required|string|min:5|max:50',
             'account_number' => 'required|min:10|max:10',
         ]);
@@ -194,5 +220,26 @@ class UserController extends Controller
         return response()->json([
             'message' => 'Password changed successfully'
         ], 200);
+    }
+
+    public function createWithdrawalRequest()
+    {
+        $user = auth()->user();
+
+        // check if user has bank settings setup
+
+        if (!$user->bank_name || !$user->account_name || !$user->account_number) {
+            return response()->json([
+                'message' => 'Please update your bank details'
+            ], 401);
+        }
+        // create  withdrawal request
+
+        $withdrawal_request = $user->withdrawalRequests->create([
+            'bank_name' => $user->bank_name,
+            'account_number' => $user->account_number,
+            'account_name' => $user->account_name,
+            'amount' => $user->balance,
+        ]);
     }
 }

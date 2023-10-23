@@ -23,7 +23,6 @@ return new class extends Migration
             $table->date("breached_at")->nullable();
             $table->date("passed_at")->nullable();
             $table->foreignId("order_id")->nullable()->references("id")->on("orders")->onDelete("cascade");
-
             // tie to user
             $table->foreignId("user_id")->nullable()->constrained("users");
             $table->string("status")->default("inactive"); // active, inactive, breached, passed

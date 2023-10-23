@@ -86,4 +86,9 @@ class ProductTwoResource extends Resource
             'edit' => Pages\EditProductTwo::route('/{record}/edit'),
         ];
     }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->latest();
+    }
 }

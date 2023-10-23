@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('bank_name');
             $table->string('account_number');
             $table->string('account_name');
-            $table->string('bank_code');
             $table->integer('amount');
             $table->string('status')->default('pending');
             $table->string('reason')->nullable();

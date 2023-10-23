@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->string("product_type");
+            $table->string("product_type")->nullable();
             $table->unsignedBigInteger("product_id")->nullable();
             $table->integer("cost");
-            $table->integer("phase");
+            $table->integer("phase")->default(1);
             $table->date("breached_at")->nullable();
             $table->foreignId("user_id")->references("id")->on("users")->onDelete("cascade");
             $table->timestamps();
