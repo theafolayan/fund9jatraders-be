@@ -31,7 +31,6 @@ class ProductTwoResource extends Resource
                 Forms\Components\TextInput::make('account_number')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('traders_password')
-                    ->password()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('server')
                     ->required()
@@ -44,7 +43,6 @@ class ProductTwoResource extends Resource
                     ->options([
                         'demo' => 'Demo',
                         'real' => 'Real',
-
                     ]),
                 // Forms\Components\DatePicker::make('purchased_at'),
             ]);
