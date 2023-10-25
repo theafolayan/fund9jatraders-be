@@ -24,7 +24,6 @@ class DatabaseSeeder extends Seeder
             'address_state' => 'Lagos',
             'bank_name' => 'GTBank',
             'account_number' => '0123456789',
-
         ]);
 
         \App\Models\ProductOne::factory(20)->create();

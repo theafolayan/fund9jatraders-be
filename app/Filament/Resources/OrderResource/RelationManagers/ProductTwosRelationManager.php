@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\OrderResource\RelationManagers;
 
+use App\Models\ProductTwo;
 use Filament\Forms;
 use Filament\Resources\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -37,12 +38,30 @@ class ProductTwosRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('account_number'),
+                Tables\Columns\TextColumn::make('traders_password'),
+                // Tables\Columns\TextColumn::make('traders_password'),
+                Tables\Columns\TextColumn::make('server'),
+                Tables\Columns\TextColumn::make('leverage'),
+                Tables\Columns\TextColumn::make('mode'),
+                Tables\Columns\TextColumn::make('purchased_at')
+                    ->date()->sortable(),
+                // status
+
+                Tables\Columns\TextColumn::make('status')->color(fn (ProductTwo $record) => match ($record->status) {
+                    'inactive' => 'warning',
+                    'active' => 'success',
+                    'breached' => 'red',
+                    'passed' => 'success'
+                })->searchable()
+                // Tables\Columns\TextColumn::make('purchased_at')
+                //     ->date(),
+
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

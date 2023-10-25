@@ -22,8 +22,21 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
 
+
+    protected static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()->isAdmin();
+    }
+
+    public function mount(): void
+    {
+        abort_unless(auth()->user()->isAdmin(), 403);
+    }
+
+
     public static function form(Form $form): Form
     {
+
         return $form
             ->schema([
                 // Forms\Components\TextInput::make('referrer_id'),
@@ -65,8 +78,6 @@ class UserResource extends Resource
                         'active' => 'Active',
                         'inactive' => 'Inactive',
                         'suspended' => 'Suspended',
-
-
                     ])
                     ->required()
             ]);

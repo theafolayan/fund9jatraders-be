@@ -19,6 +19,9 @@ class ProductTwoResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
 
+    protected static ?string $navigationLabel = 'Product Two';
+
+    protected static ?string $title = "Product Two ";
 
 
     public static function form(Form $form): Form
@@ -86,6 +89,7 @@ class ProductTwoResource extends Resource
             'edit' => Pages\EditProductTwo::route('/{record}/edit'),
         ];
     }
+
 
     public static function getEloquentQuery(): Builder
     {

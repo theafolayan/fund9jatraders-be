@@ -10,6 +10,8 @@ use Filament\Resources\Pages\ManageRecords;
 class ManageProductThrees extends ManageRecords
 {
     protected static string $resource = ProductThreeResource::class;
+    protected static ?string $title = "Product Three ";
+
 
     protected function getActions(): array
     {

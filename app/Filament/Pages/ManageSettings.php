@@ -16,6 +16,15 @@ class ManageSettings extends SettingsPage
     protected static ?string $navigationIcon = 'heroicon-o-cog';
 
     protected static string $settings = PlatformSettings::class;
+    protected static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()->isAdmin();
+    }
+
+    public function mount(): void
+    {
+        abort_unless(auth()->user()->isAdmin(), 403);
+    }
 
     protected function getFormSchema(): array
     {

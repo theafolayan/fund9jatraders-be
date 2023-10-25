@@ -10,6 +10,8 @@ use Filament\Resources\Pages\ListRecords;
 class ListProductTwos extends ListRecords
 {
     protected static string $resource = ProductTwoResource::class;
+    protected static ?string $title = "Product Two ";
+
 
     protected function getActions(): array
     {
