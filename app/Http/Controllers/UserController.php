@@ -27,6 +27,14 @@ class UserController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
+        //check OTP
+
+        if ($this->checkOtp($request->email, $request->otp)) {
+            return response()->json([
+                'message' => 'Invalid OTP'
+            ], 401);
+        }
+
         $referral_id = $request->referral_id;
 
 
@@ -55,7 +63,7 @@ class UserController extends Controller
     {
 
         $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8'
         ]);
 
@@ -75,7 +83,7 @@ class UserController extends Controller
 
     public function checkOtp($email, $otp)
     {
-        return Otp::digits(4)->check($email, $otp);
+        return Otp::digits(4)->check($otp, $email);
     }
 
 
@@ -96,6 +104,11 @@ class UserController extends Controller
         // check if user is suspended
 
 
+        if (!$user) {
+            return response()->json([
+                'message' => 'Invalid email or password'
+            ], 401);
+        }
         if ($user->status == 'suspended') {
             return response()->json([
                 'message' => 'User is suspended'
