@@ -88,7 +88,7 @@ class WithdrawalRequestsRelationManager extends RelationManager
                         //     $this->record->save();
                         // })
                         ->form([
-                            Forms\Components\TextArea::make('reason')->label('Give a reason')
+                            Forms\Components\Textarea::make('reason')->label('Give a reason')
                                 ->required()
                                 ->maxLength(255),
                         ]),
