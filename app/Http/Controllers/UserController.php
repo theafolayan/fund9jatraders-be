@@ -93,6 +93,15 @@ class UserController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
+        // check if user is suspended
+
+
+        if ($user->status == 'suspended') {
+            return response()->json([
+                'message' => 'User is suspended'
+            ], 401);
+        }
+
 
 
         //check if password is correct
@@ -151,6 +160,12 @@ class UserController extends Controller
     public function user()
     {
         $user = auth()->user();
+
+        if ($user->status == 'suspended') {
+            return response()->json([
+                'message' => 'User is suspended'
+            ], 401);
+        }
 
         return $user;
     }

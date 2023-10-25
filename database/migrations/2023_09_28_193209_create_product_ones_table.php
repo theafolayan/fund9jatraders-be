@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('leverage');
             $table->string("mode");
             $table->date("purchased_at")->nullable();
+            $table->boolean('is_assigned')->nullable();
             //failed at
             $table->date("breached_at")->nullable();
             $table->date("passed_at")->nullable();

@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Notifications\AccountPromotionNotification;
+use App\Notifications\BreachedAccountNotification;
+use App\Notifications\ProductLowStockNotification;
+use App\Settings\PlatformSettings;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -30,26 +34,26 @@ class Order extends Model
     public function getAllProductsAttribute()
     {
         if ($this->product_type == "ONE") {
-            return ProductOne::where('order_id', $this->id)->get();
+            return $this->productOnes()->get();
         }
         if ($this->product_type == "TWO") {
-            return ProductTwo::where('order_id', $this->id)->get();
+            return $this->productTwos()->get();
         }
         if ($this->product_type == "THREE") {
-            return ProductThree::where('order_id', $this->id)->get();
+            return $this->productThrees()->get();
         }
     }
 
     public function getLastAssignedAttribute()
     {
         if ($this->product_type == "ONE") {
-            return ProductOne::where('order_id', $this->id)->where('status', 'active')->latest()->first();
+            return $this->productOnes()->where('status', 'active')->latest('purchased_at')->first();
         }
         if ($this->product_type == "TWO") {
-            return ProductTwo::where('order_id', $this->id)->where('status', 'active')->latest()->first();
+            return $this->productTwos()->where('status', 'active')->latest('purchased_at')->first();
         }
         if ($this->product_type == "THREE") {
-            return ProductThree::where('order_id', $this->id)->where('status', 'active')->latest()->first();
+            return $this->productThrees()->where('status', 'active')->latest('purchased_at')->first();
         }
     }
 
@@ -67,6 +71,7 @@ class Order extends Model
             return $this->hasMany(ProductThree::class);
         }
     }
+
 
 
 
@@ -96,12 +101,12 @@ class Order extends Model
 
     public function promote()
     {
-
-
         $last_assigned = $this->last_assigned;
         if ($last_assigned) {
             $last_assigned->markasPassed();
+            $this->update(['phase' => $this->phase + 1]);
         }
+
 
         // assign another product
 
@@ -117,19 +122,36 @@ class Order extends Model
 
         $type = $this->product_type;
         if ($type == "ONE") {
-            $product = $this->phase < 2 ? ProductOne::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->first() : ProductOne::where('order_id', null)->where('mode', 'real')->where('status', 'inactive')->first();
+            $product = $this->phase < 3 ? ProductOne::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->first() : ProductOne::where('order_id', null)->where('mode', 'real')->where('status', 'inactive')->first();
+
+            $productCount = $this->phase < 3 ? ProductOne::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->count() : ProductOne::where('order_id', null)->where('mode', 'real')->where('status', 'inactive')->count();
+
+            if ($productCount < 10) {
+                // notify admin
+                $admin = User::where('role', 'admin')->first();
+                $admin->notify(new ProductLowStockNotification($productCount, app(PlatformSettings::class)->product_one_title));
+            }
+
 
             // dd($product);
             if (!$product) {
+                $this->product_id = null;
+                $this->save();
                 return false;
             }
             $product->order_id = $this->id;
             $product->user_id = $this->user_id;
+            $product->is_assigned = !$this->phase == 3;
             $product->status = 'active';
+            $product->purchased_at = now();
+
             $product->save();
             $this->product_id = $product->id;
 
             $this->save();
+
+            // notify user
+            $this->user->notify(new AccountPromotionNotification($product, $this, $last_assigned->account_number));
         } else if ($type == "TWO") {
             $product = ProductTwo::where('order_id', null)->first();
             if (!$product) {
@@ -155,24 +177,24 @@ class Order extends Model
             $this->product_id = $product->id;
             $this->save();
         }
-
-        return $this->update([
-            "phase" => $this->phase + 1,
-        ]);
     }
 
     public function markAsBreached()
     {
 
-        $this->update([
-            "breached_at" => now(),
-        ]);
+
 
         // check assigned product
         $product = $this->last_assigned;
+        // $product->order->user->notify(new BreachedAccountNotification($product));
         if ($product) {
             $product->markAsBreached();
+            $product->order->user->notify(new BreachedAccountNotification($product));
         }
+        $this->update([
+            "breached_at" => now(),
+            'product_id' => null
+        ]);
     }
 
     public function isBreached()

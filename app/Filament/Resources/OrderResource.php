@@ -20,6 +20,8 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Columns\IconColumn;
+
 
 class OrderResource extends Resource
 {
@@ -41,7 +43,7 @@ class OrderResource extends Resource
                     ->required(),
                 Forms\Components\TextInput::make('phase')
                     ->required(),
-                Forms\Components\DatePicker::make('breached_at'),
+                Forms\Components\DatePicker::make('breached_at')->visible(fn (Order $record) => $record->isBreached()),
             ]);
     }
 
@@ -49,21 +51,24 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id'),
+                Tables\Columns\TextColumn::make('user.name'),
                 Tables\Columns\TextColumn::make('product_type')->description(fn (Order $record) => match ($record->product_type) {
                     'ONE' =>  app(PlatformSettings::class)->product_one_title,
                     'TWO' => app(PlatformSettings::class)->product_two_title,
                     'THREE' => app(PlatformSettings::class)->product_three_title,
                 }),
                 // Tables\Columns\TextColumn::make('product_id'),
-                Tables\Columns\TextColumn::make('cost'),
+                // Tables\Columns\TextColumn::make('cost'),
                 Tables\Columns\TextColumn::make('phase'),
                 Tables\Columns\TextColumn::make('breached_at')
-                    ->date(),
+                    ->date()->icon(fn (Order $record) => $record->isBreached() ? 'heroicon-o-x-circle' : null)->color('danger'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime(),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime(),
+                // Tables\Columns\TextColumn::make('updated_at')
+                //     ->dateTime(),
+                IconColumn::make('product_id')->label("Product Assigned")
+                    ->boolean(fn (Order $record) => $record->product_id !== null)
+                    ->falseIcon('heroicon-o-x-circle')
             ])
             ->filters([
                 Filter::make('breached_at')->label("Hide breached orders")->query(
@@ -77,7 +82,7 @@ class OrderResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\Action::make('Assign account'),
+                // Tables\Actions\Action::make('Assign account'),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('breach')
                         ->label('Mark As Breached')->requiresConfirmation()->action(

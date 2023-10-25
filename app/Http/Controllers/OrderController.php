@@ -8,6 +8,8 @@ use App\Models\Order;
 use App\Models\ProductOne;
 use App\Models\ProductThree;
 use App\Models\ProductTwo;
+use App\Models\User;
+use App\Notifications\ProductLowStockNotification;
 use App\Notifications\ProductPurchaseNotification;
 use App\Settings\PlatformSettings;
 
@@ -52,6 +54,16 @@ class OrderController extends Controller
         if (true) {
             // check for available product one
             $product = ProductOne::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->first();
+
+            $productCount = ProductOne::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->count();
+
+            // check if product count is less than 10 and if it is, alert the admin
+
+            if ($productCount < 10) {
+                // notify admin
+                $admin = User::where('role', 'admin')->first();
+                $admin->notify(new ProductLowStockNotification($productCount, app(PlatformSettings::class)->product_one_title));
+            }
 
             if (!$product) {
                 return response()->json([

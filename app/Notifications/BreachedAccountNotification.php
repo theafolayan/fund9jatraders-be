@@ -7,19 +7,18 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ProductLowStockNotification extends Notification
+class BreachedAccountNotification extends Notification
 {
     use Queueable;
-    protected $stock;
-    protected $productType;
 
+    protected $product;
     /**
      * Create a new notification instance.
      */
-    public function __construct($stock, $productType)
+    public function __construct($product)
     {
-        $this->stock = $stock;
-        $this->productType = $productType;
+        $this->product = $product;
+        //
     }
 
     /**
@@ -38,10 +37,11 @@ class ProductLowStockNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Product Low Stock')
-            ->line('Hello Admin')
-            ->line($this->productType . ' is running out of stock, you have ' . $this->stock - 1 . ' left . Please restock as soon as possible to avoid errors.')
-            ->action('Go to dashboard', url('https://admin.fund9jatraders.com'));
+            ->subject("Your assigned trading account has been breached")
+            ->line("Dear {$notifiable->name}, Your assigned trading account {$this->product->account_number} on server {$this->product->server} was disabled for the following reason:
+                ")
+            ->line("Disqualified: - 20 percent maximum allowable loss.")
+            ->line('If you have any questions, please contact us at: hi@fund9jatraders.com');
     }
 
     /**

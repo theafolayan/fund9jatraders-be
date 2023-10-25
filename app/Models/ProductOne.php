@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Notifications\ProductPurchaseNotification;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -29,15 +31,37 @@ class ProductOne extends Model
 
         parent::boot();
 
-        static::created(function ($productOne) {
+        static::created(function ($product) {
 
-            $order = Order::where('product_type', 'ONE')->whereNull('breached_at')->whereNull('product_id')->first();
+            $order = $product->mode == "demo" ? Order::where('product_type', 'ONE')->whereNull('breached_at')->whereNull('product_id')->first() : Order::where('product_type', 'ONE')->whereNull('breached_at')->whereNull('product_id')->where('phase', 3)->first();
+
             if ($order) {
-                $productOne->order_id = $order->id;
-                $productOne->save();
-                // notify user
-                $user = $order->user;
+                $product->order_id = $order->id;
+                $product->user_id = auth()->user()->id;
+                $product->save();
+
+                $order->product_id = $product->id;
+                $product->status = 'active';
+                $product->is_assigned = !$order->phase == 3;
+                $product->purchased_at = now();
+                $product->save();
+                $order->save();
+
+                auth()->user()->notify(new ProductPurchaseNotification($product, $order));
+
+                Notification::make()
+                    ->success()
+                    ->message('Product created and assigned to {$order->user->name}')
+                    ->send();
             }
+
+
+            // if ($order) {
+            //     $productOne->order_id = $order->id;
+            //     $productOne->save();
+            //     // notify user
+            //     $user = $order->user;
+            // }
         });
     }
 

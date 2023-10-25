@@ -20,6 +20,7 @@ class ProductOnesRelationManager extends RelationManager
 
     public static function canViewForRecord(Model $ownerRecord): bool
     {
+
         return $ownerRecord->product_type == "ONE";
     }
 
@@ -40,6 +41,7 @@ class ProductOnesRelationManager extends RelationManager
                 Forms\Components\TextInput::make('leverage')
                     ->required()
                     ->maxLength(255),
+
             ]);
     }
 
@@ -53,13 +55,16 @@ class ProductOnesRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('server'),
                 Tables\Columns\TextColumn::make('leverage'),
                 Tables\Columns\TextColumn::make('mode'),
+                Tables\Columns\TextColumn::make('purchased_at')
+                    ->date()->sortable(),
                 // status
 
                 Tables\Columns\TextColumn::make('status')->color(fn (ProductOne $record) => match ($record->status) {
                     'inactive' => 'warning',
-                    'active' => 'green',
+                    'active' => 'success',
                     'breached' => 'red',
-                }),
+                    'passed' => 'success'
+                })->searchable()
                 // Tables\Columns\TextColumn::make('purchased_at')
                 //     ->date(),
 

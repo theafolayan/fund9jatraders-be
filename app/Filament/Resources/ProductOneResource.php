@@ -64,7 +64,7 @@ class ProductOneResource extends Resource
                     'passed' => 'success',
                 }),
                 Tables\Columns\TextColumn::make('purchased_at')
-                    ->date(),
+                    ->datetime(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime(),
                 Tables\Columns\TextColumn::make('updated_at')
@@ -83,12 +83,13 @@ class ProductOneResource extends Resource
                     'inactive' => 'Inactive',
                     'breached' => 'Breached',
                     'passed' => 'Passed',
-                ]),
+                ])->multiple(),
                 // Filter::make('hide_breached')->label("Show breached products")->query(fn (Builder $query): Builder => $query->whereNull('breached_at')),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()->visible(fn (ProductOne $record) => $record->status == 'inactive'),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),

@@ -23,7 +23,7 @@ class ProductOneFactory extends Factory
             'leverage' => '1:1000',
             'status' => 'inactive',
             'mode' => $this->faker->randomElement(['demo', 'real']),
-            'purchased_at' => $this->faker->randomElement([$this->faker->dateTimeBetween('-1 years', 'now'), null]),
+            // 'purchased_at' => $this->faker->randomElement([$this->faker->dateTimeBetween('-1 years', 'now'), null]),
         ];
     }
 }
