@@ -39,10 +39,14 @@ class ProductTwoResource extends Resource
                 Forms\Components\TextInput::make('leverage')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('mode')
+                Forms\Components\Select::make('mode')
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\DatePicker::make('purchased_at'),
+                    ->options([
+                        'demo' => 'Demo',
+                        'real' => 'Real',
+
+                    ]),
+                // Forms\Components\DatePicker::make('purchased_at'),
             ]);
     }
 
