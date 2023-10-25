@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('bank_name');
             $table->string('account_number');
             $table->string('account_name');
-            $table->integer('amount');
+            $table->integer('amount')->nullable();
+            $table->integer("affiliate_amount")->nullable();
             $table->string('status')->default('pending');
             $table->string('reason')->nullable();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');

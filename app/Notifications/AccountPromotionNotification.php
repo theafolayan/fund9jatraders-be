@@ -26,7 +26,7 @@ class AccountPromotionNotification extends Notification
         $this->order = $order;
         $this->challenge = $this->order->product_type == "ONE" ? app(PlatformSettings::class)->product_one_title : ($this->order->product_type == "TWO" ? app(PlatformSettings::class)->product_two_title : app(PlatformSettings::class)->product_three_title);
         $this->old_account = $old_account;
-        $this->phase = $order->phase;
+        $this->phase = $order->phase - 1;
     }
     /**
      * Get the notification's delivery channels.

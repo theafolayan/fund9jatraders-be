@@ -27,9 +27,8 @@ class DatabaseSeeder extends Seeder
 
         ]);
 
-
         \App\Models\ProductOne::factory(20)->create();
-        // \App\Models\ProductTwo::factory(25)->create();
-        // \App\Models\ProductThree::factory(20)->create();
+        \App\Models\ProductTwo::factory(20)->create();
+        \App\Models\ProductThree::factory(20)->create();
     }
 }

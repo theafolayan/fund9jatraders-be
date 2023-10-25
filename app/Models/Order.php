@@ -107,7 +107,6 @@ class Order extends Model
             $this->update(['phase' => $this->phase + 1]);
         }
 
-
         // assign another product
 
         function getProductType($order)
@@ -119,12 +118,11 @@ class Order extends Model
             }
         }
 
-
         $type = $this->product_type;
-        if ($type == "ONE") {
-            $product = $this->phase < 3 ? ProductOne::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->first() : ProductOne::where('order_id', null)->where('mode', 'real')->where('status', 'inactive')->first();
+        if ($type == "TWO") {
+            $product = $this->phase < 3 ? ProductTwo::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->first() : ProductTwo::where('order_id', null)->where('mode', 'real')->where('status', 'inactive')->first();
 
-            $productCount = $this->phase < 3 ? ProductOne::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->count() : ProductOne::where('order_id', null)->where('mode', 'real')->where('status', 'inactive')->count();
+            $productCount = $this->phase < 3 ? ProductTwo::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->count() : ProductTwo::where('order_id', null)->where('mode', 'real')->where('status', 'inactive')->count();
 
             if ($productCount < 10) {
                 // notify admin
@@ -135,6 +133,7 @@ class Order extends Model
 
             // dd($product);
             if (!$product) {
+                Notification::make()->title('No available product, please add an account manually ')->danger()->send();
                 $this->product_id = null;
                 $this->save();
                 return false;
@@ -152,37 +151,84 @@ class Order extends Model
 
             // notify user
             $this->user->notify(new AccountPromotionNotification($product, $this, $last_assigned->account_number));
-        } else if ($type == "TWO") {
-            $product = ProductTwo::where('order_id', null)->first();
+            Notification::make()->title('Order Promoted and new account assigned successfully')->success()->send();
+        } else if ($type == "ONE") {
+            $product = $this->phase < 3 ? ProductOne::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->first() : ProductOne::where('order_id', null)->where('mode', 'real')->where('status', 'inactive')->first();
+
+            $productCount = $this->phase < 3 ? ProductOne::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->count() : ProductOne::where('order_id', null)->where('mode', 'real')->where('status', 'inactive')->count();
+
+            if ($productCount < 10) {
+                // notify admin
+                $admin = User::where('role', 'admin')->first();
+                $admin->notify(new ProductLowStockNotification($productCount, app(PlatformSettings::class)->product_one_title));
+            }
+
+
+            // dd($product);
             if (!$product) {
-                return Notification::make()->title('No available product, please add an account manually')->error()->send();
+                Notification::make()->title('No available product, please add an account manually ')->danger()->send();
+
+                $this->product_id = null;
+
+                $this->save();
+                return false;
             }
             $product->order_id = $this->id;
             $product->user_id = $this->user_id;
+            $product->is_assigned = !$this->phase == 3;
             $product->status = 'active';
+            $product->purchased_at = now();
 
             $product->save();
             $this->product_id = $product->id;
-            $this->save();
-        } else {
-            $product = ProductThree::where('order_id', null)->first();
-            if (!$product) {
-                return Notification::make()->title('No available product, please add an account manually')->error()->send();
-            }
-            $product->order_id = $this->id;
-            $product->user_id = $this->user_id;
-            $product->status = 'active';
 
-            $product->save();
-            $this->product_id = $product->id;
             $this->save();
+
+            // notify user
+            $this->user->notify(new AccountPromotionNotification($product, $this, $last_assigned->account_number));
+
+            return true;
         }
+        if ($type == "THREE") {
+            $product = $this->phase < 3 ? ProductThree::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->first() : ProductThree::where('order_id', null)->where('mode', 'real')->where('status', 'inactive')->first();
+
+            $productCount = $this->phase < 3 ? ProductThree::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->count() : ProductThree::where('order_id', null)->where('mode', 'real')->where('status', 'inactive')->count();
+
+            if ($productCount < 10) {
+                // notify admin
+                $admin = User::where('role', 'admin')->first();
+                $admin->notify(new ProductLowStockNotification($productCount, app(PlatformSettings::class)->product_one_title));
+            }
+
+
+            // dd($product);
+            if (!$product) {
+                Notification::make()->title('No available product, please add an account manually ')->danger()->send();
+
+                $this->product_id = null;
+                $this->save();
+                return false;
+            }
+            $product->order_id = $this->id;
+            $product->user_id = $this->user_id;
+            $product->is_assigned = !$this->phase == 3;
+            $product->status = 'active';
+            $product->purchased_at = now();
+
+            $product->save();
+            $this->product_id = $product->id;
+
+            $this->save();
+
+            // notify user
+            $this->user->notify(new AccountPromotionNotification($product, $this, $last_assigned->account_number));
+            return true;
+        }
+        return true;
     }
 
     public function markAsBreached()
     {
-
-
 
         // check assigned product
         $product = $this->last_assigned;

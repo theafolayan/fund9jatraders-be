@@ -74,6 +74,8 @@ class OrderResource extends Resource
                 Filter::make('breached_at')->label("Hide breached orders")->query(
                     fn (Builder $query): Builder => $query->whereNull('breached_at')
                 ),
+
+
                 SelectFilter::make('product_type')->label("Challenge Type")->options([
                     'ONE' =>  app(PlatformSettings::class)->product_one_title,
                     'TWO' => app(PlatformSettings::class)->product_two_title,
@@ -96,11 +98,9 @@ class OrderResource extends Resource
                     Tables\Actions\Action::make('promote')
                         ->label('Promote Account')->requiresConfirmation()->action(
                             function (Order $record) {
-                                if ($record->promote()) {
-                                    Notification::make()->title('Order Promoted and new account assigned successfully')->success()->send();
-                                } else {
-                                    Notification::make()->title('No available product, please add an account manually ')->danger()->send();
-                                }
+                                $record->promote();
+                                // } else {
+                                // }
                             }
                         )->visible(function (Order $record) {
                             return !$record->isBreached() && $record->phase <= 2;

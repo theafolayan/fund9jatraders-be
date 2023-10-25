@@ -51,7 +51,7 @@ class ProductOne extends Model
 
                 Notification::make()
                     ->success()
-                    ->message('Product created and assigned to {$order->user->name}')
+                    ->title('Product created and assigned to {$order->user->name}')
                     ->send();
             }
 

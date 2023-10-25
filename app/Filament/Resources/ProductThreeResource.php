@@ -10,6 +10,7 @@ use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -23,11 +24,10 @@ class ProductThreeResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('user_id'),
                 Forms\Components\TextInput::make('account_number')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('traders_password')
-                    ->password()
+
                     ->maxLength(255),
                 Forms\Components\TextInput::make('server')
                     ->required()
@@ -35,14 +35,12 @@ class ProductThreeResource extends Resource
                 Forms\Components\TextInput::make('leverage')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('mode')
+                Forms\Components\Select::make('mode')
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\DatePicker::make('purchased_at'),
-                Forms\Components\DatePicker::make('failed_at'),
-                Forms\Components\TextInput::make('status')
-                    ->required()
-                    ->maxLength(255),
+                    ->options([
+                        'demo' => 'Demo',
+                        'real' => 'Real',
+                    ]),
             ]);
     }
 
@@ -50,27 +48,45 @@ class ProductThreeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id'),
-                Tables\Columns\TextColumn::make('account_number'),
-                Tables\Columns\TextColumn::make('server'),
-                Tables\Columns\TextColumn::make('leverage'),
+                Tables\Columns\TextColumn::make('account_number')->searchable(),
+                Tables\Columns\TextColumn::make('traders_password')->searchable(),
+                Tables\Columns\TextColumn::make('server')->searchable(),
+                Tables\Columns\TextColumn::make('leverage')->sortable(),
                 Tables\Columns\TextColumn::make('mode'),
+                // status
+                Tables\Columns\TextColumn::make('status')->color(fn (ProductThree $record) => match ($record->status) {
+                    'active' => 'success',
+                    'inactive' => 'warning',
+                    'breached' => 'danger',
+                    'passed' => 'success',
+                }),
                 Tables\Columns\TextColumn::make('purchased_at')
-                    ->date(),
-                Tables\Columns\TextColumn::make('failed_at')
-                    ->date(),
-                Tables\Columns\TextColumn::make('status'),
+                    ->datetime(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime(),
             ])
             ->filters([
-                //
+                SelectFilter::make('mode')
+                    ->options([
+                        'demo' => 'Demo',
+                        'real' => 'Real',
+                        // 'fresh' => 'Fresh',
+                    ])->multiple(),
+
+                SelectFilter::make('status')->options([
+                    'active' => 'Active',
+                    'inactive' => 'Inactive',
+                    'breached' => 'Breached',
+                    'passed' => 'Passed',
+                ])->multiple(),
+                // Filter::make('hide_breached')->label("Show breached products")->query(fn (Builder $query): Builder => $query->whereNull('breached_at')),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()->visible(fn (ProductThree $record) => $record->status == 'inactive'),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),

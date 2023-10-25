@@ -51,7 +51,7 @@ class OrderController extends Controller
 
         // assign a product to the order
 
-        if (true) {
+        if ($type == 'one') {
             // check for available product one
             $product = ProductOne::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->first();
 
@@ -90,67 +90,67 @@ class OrderController extends Controller
             ], 201);
         }
 
-        // if ($type == 'two') {
+        if ($type == 'two') {
 
-        //     // check for available product one
-        //     $product = ProductTwo::where('order_id', null)->first();
+            $product = ProductTwo::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->first();
 
-        //     if (!$product) {
-        //         return response()->json([
-        //             'message' => 'No available product',
-        //         ], 400);
-        //     }
+            $productCount = ProductTwo::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->count();
 
-        //     $product->order_id = $order->id;
-        //     $product->user_id = auth()->user()->id;
-        //     $product->save();
+            // check if product count is less than 10 and if it is, alert the admin
 
-        //     $order->product_id = $product->id;
-        //     $order->save();
+            if ($productCount < 10) {
+                // notify admin
+                $admin = User::where('role', 'admin')->first();
+                $admin->notify(new ProductLowStockNotification($productCount, app(PlatformSettings::class)->product_one_title));
+            }
 
-        //     return response()->json([
-        //         'message' => 'Product assigned successfully',
-        //         'product' => $product,
-        //     ], 201);
-        // }
+            if (!$product) {
+                return response()->json([
+                    'message' => 'No available product, a product will be assigned to you as soon as there is one available',
+                ], 400);
+            }
 
-        // if ($type == 'three') {
+            $product->order_id = $order->id;
+            $product->user_id = auth()->user()->id;
+            $product->save();
 
-        //     // check for available product one
-        //     $product = ProductThree::where('order_id', null)->first();
+            $order->product_id = $product->id;
+            $product->status = 'active';
+            $product->purchased_at = now();
+            $product->save();
+            $order->save();
 
-        //     if (!$product) {
-        //         return response()->json([
-        //             'message' => 'No available product',
-        //         ], 400);
-        //     }
-
-        //     $product->order_id = $order->id;
-        //     $product->user_id = auth()->user()->id;
-        //     $product->save();
-
-        //     $order->product_id = $product->id;
-        //     $order->save();
-
-        //     return response()->json([
-        //         'message' => 'Product assigned successfully',
-        //         'product' => $product,
-        //     ], 201);
-        // }
+            auth()->user()->notify(new ProductPurchaseNotification($product, $order));
 
 
+            return response()->json([
+                'message' => 'Product assigned successfully',
+                'product' => $product,
+            ], 201);
+        }
 
-        // assign a user to the order
+        if ($type == 'three') {
 
-        // return the order
+            $product = ProductThree::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->first();
 
-        // return the product
+            $productCount = ProductThree::where('order_id', null)->where('mode', 'demo')->where('status', 'inactive')->count();
+
+            // check if product count is less than 10 and if it is, alert the admin
+
+            if ($productCount < 10) {
+                // notify admin
+                $admin = User::where('role', 'admin')->first();
+                $admin->notify(new ProductLowStockNotification($productCount, app(PlatformSettings::class)->product_one_title));
+            }
+
+            if (!$product) {
+                return response()->json([
+                    'message' => 'No available product, a product will be assigned to you as soon as there is one available',
+                ], 400);
+            }
+        }
     }
 
-
-    public function assignProduct($tier)
-    {
-    }
 
 
     /**

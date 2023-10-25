@@ -37,6 +37,7 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
     Route::put('/bank', [UserController::class, 'updateBankDetails']);
     Route::put('/update-address', [UserController::class, 'updateAddress']);
     Route::get('/platform-settings', [UserController::class, 'getPlatformSettings']);
+    Route::post('/withdrawal-request', [UserController::class, 'createWithdrawalRequest']);
 });
 
 // Route::get

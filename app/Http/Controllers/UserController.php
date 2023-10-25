@@ -241,6 +241,9 @@ class UserController extends Controller
     {
         $user = auth()->user();
 
+
+
+
         // check if user has bank settings setup
 
         if (!$user->bank_name || !$user->account_name || !$user->account_number) {
@@ -248,13 +251,21 @@ class UserController extends Controller
                 'message' => 'Please update your bank details'
             ], 401);
         }
+
+        // check if user has pending withdrawal request
+        if ($user->withdrawalRequests->where('status', 'pending')->count() > 0) {
+            return response()->json([
+                'message' => 'You have a pending withdrawal request'
+            ], 401);
+        }
+
         // create  withdrawal request
 
-        $withdrawal_request = $user->withdrawalRequests->create([
+        $withdrawal_request = $user->withdrawalRequests()->create([
             'bank_name' => $user->bank_name,
             'account_number' => $user->account_number,
             'account_name' => $user->account_name,
-            'amount' => $user->balance,
+            'affiliate_amount' => $user->balance,
         ]);
     }
 }
