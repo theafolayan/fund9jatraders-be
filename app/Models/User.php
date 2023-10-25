@@ -10,8 +10,9 @@ use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\HasApiTokens;
 use Bavix\Wallet\Traits\HasWallet;
 use Bavix\Wallet\Interfaces\Wallet;
+use Filament\Models\Contracts\FilamentUser;
 
-class User extends Authenticatable implements Wallet
+class User extends Authenticatable implements Wallet, FilamentUser
 {
     use HasApiTokens, HasFactory, Notifiable, HasWallet;
 
