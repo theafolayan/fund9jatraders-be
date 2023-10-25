@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\ProductOneResource\Pages;
 
 use App\Filament\Resources\ProductOneResource;
-use App\Filament\Widgets\ProductOneOverview;
+use App\Filament\Resources\ProductOneResource\Widgets\ProductOneOverview;
 use Filament\Pages\Actions;
 use Filament\Resources\Pages\ListRecords;
 
@@ -22,6 +22,7 @@ class ListProductOnes extends ListRecords
     {
         return [
             ProductOneOverview::class,
+
         ];
     }
 }

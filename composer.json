@@ -9,12 +9,14 @@
         "bavix/laravel-wallet": "^10.0",
         "filament/filament": "^2.0",
         "filament/spatie-laravel-settings-plugin": "^2.0-stable",
+        "flowframe/laravel-trend": "^0.1.5",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
         "spatie/laravel-settings": "^3.2",
-        "tzsk/otp": "^7.0"
+        "tzsk/otp": "^7.0",
+        "webbingbrasil/filament-datefilter": "^1.1"
     },
     "require-dev": {
         "doctrine/dbal": "^3.6",

@@ -10,7 +10,11 @@ use App\Filament\Resources\OrderResource\RelationManagers\ProductTwosRelationMan
 use App\Filament\Resources\OrderResource\RelationManagers\UserRelationManager;
 use App\Models\Order;
 use App\Settings\PlatformSettings;
+use Webbingbrasil\FilamentDateFilter\DateFilter;
+
+use Carbon\Carbon;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Notifications\Notification;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
@@ -27,7 +31,10 @@ class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-collection';
+    protected static ?string $navigationIcon = 'heroicon-o-shield-check';
+
+    protected static ?string $navigationLabel = 'Verifications';
+
 
     public static function form(Form $form): Form
     {
@@ -58,7 +65,7 @@ class OrderResource extends Resource
                     'THREE' => app(PlatformSettings::class)->product_three_title,
                 }),
                 // Tables\Columns\TextColumn::make('product_id'),
-                // Tables\Columns\TextColumn::make('cost'),
+                Tables\Columns\TextColumn::make('cost'),
                 Tables\Columns\TextColumn::make('phase'),
                 Tables\Columns\TextColumn::make('breached_at')
                     ->date()->icon(fn (Order $record) => $record->isBreached() ? 'heroicon-o-x-circle' : null)->color('danger'),
@@ -81,6 +88,17 @@ class OrderResource extends Resource
                     'TWO' => app(PlatformSettings::class)->product_two_title,
                     'THREE' => app(PlatformSettings::class)->product_three_title,
                 ])->multiple(),
+
+                // FilalemtDa
+
+                DateFilter::make('created_at')
+                    ->label(__('Created At'))
+                    ->minDate(Carbon::today()->subMonth(1))
+                    ->maxDate(Carbon::today()->addMonth(2))
+                    ->timeZone('Africa/Lagos')
+                    ->range()
+                    ->fromLabel(__('From'))
+                    ->untilLabel(__('Until'))
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

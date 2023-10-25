@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\WithdrawalRequestResource\Pages;
 use App\Filament\Resources\WithdrawalRequestResource\RelationManagers;
 use App\Models\WithdrawalRequest;
+use App\Notifications\WithdrawalApprovedNotification;
+use App\Notifications\WithdrawalRejectedNotification;
 use Filament\Forms;
 use Filament\Notifications\Actions\ActionGroup;
 use Filament\Resources\Form;
@@ -76,11 +78,15 @@ class WithdrawalRequestResource extends Resource
                         ->label('Approve')
                         ->color('success')
                         ->icon('heroicon-o-check')
-                        ->action(function (WithdrawalRequest $record) {
-                            $record->update(['status' => 'approved']);
-                            $record->markAsApproved();
+                        ->action(function (WithdrawalRequest $record, array $data) {
+                            $record->update(['status' => 'approved', 'amount' => $data['amount']]);
+                            // $record->markAsApproved();
                             $record->user->notify(new WithdrawalApprovedNotification($record));
-                        })
+                        })->form([
+                            Forms\Components\TextInput::make('amount')->label('Enter an amount')
+                                ->required()
+                                ->maxLength(255),
+                        ])
                         ->visible(fn (WithdrawalRequest $record) => $record->status == 'pending')
 
                         ->requiresConfirmation('Are you sure you want to approve this withdrawal request?', 'Approve'),
@@ -103,12 +109,12 @@ class WithdrawalRequestResource extends Resource
                         //     $this->record->save();
                         // })
                         ->form([
-                            Forms\Components\Textarea::make('reason')->label('Give a reason')
+                            Forms\Components\TextArea::make('reason')->label('Give a reason')
                                 ->required()
                                 ->maxLength(255),
                         ]),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
+                    // Tables\Actions\EditAction::make(),
+                    // Tables\Actions\DeleteAction::make(),
 
 
                 ])
