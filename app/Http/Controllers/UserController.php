@@ -22,8 +22,8 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email',
-            'address_city' => 'required|string',
-            'address_state' => 'required|string',
+            // 'address_city' => 'required|string',
+            // 'address_state' => 'required|string',
             'password' => 'required|string|min:8',
         ]);
 
