@@ -23,6 +23,7 @@ class ManageSettings extends SettingsPage
 
     public function mount(): void
     {
+        parent::mount();
         abort_unless(auth()->user()->isAdmin(), 403);
     }
 
