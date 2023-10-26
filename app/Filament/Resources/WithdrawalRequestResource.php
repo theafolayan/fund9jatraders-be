@@ -15,6 +15,7 @@ use Filament\Resources\Table;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup as ActionsActionGroup;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -62,7 +63,11 @@ class WithdrawalRequestResource extends Resource
                 Tables\Columns\TextColumn::make('account_name'),
                 // Tables\Columns\TextColumn::make('bank_code'),
                 Tables\Columns\TextColumn::make('amount'),
-                Tables\Columns\TextColumn::make('status'),
+                Tables\Columns\TextColumn::make('status')->color(fn (WithdrawalRequest $record) => match ($record->status) {
+                    'pending' => 'warning',
+                    'approved' => 'success',
+                    'rejected' => 'danger',
+                }),
                 Tables\Columns\TextColumn::make('reason'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime(),
@@ -70,7 +75,12 @@ class WithdrawalRequestResource extends Resource
                 //     ->dateTime(),
             ])
             ->filters([
-                //
+                SelectFilter::make('status')
+                    ->options([
+                        'pending' => 'Pending',
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                    ]),
             ])
             ->actions([
                 ActionsActionGroup::make([

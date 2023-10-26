@@ -268,7 +268,7 @@ class UserController extends Controller
         // check if user has pending withdrawal request
         if ($user->withdrawalRequests->where('status', 'pending')->count() > 0) {
             return response()->json([
-                'message' => 'You have a pending withdrawal request'
+                'message' => 'Please wait, you have a pending withdrawal request'
             ], 401);
         }
 
